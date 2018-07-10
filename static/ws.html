@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" src="bootstrap.min.css">
+    <script type="text/javascript" src="jquery.min.js"></script>
+</head>
+<body>
+<form>
+  <div class="form-group">
+    <label for="exampleInputEmail1">Msg:</label>
+    <input type="msg" class="form-control" id="msg" placeholder="Msg">
+  </div>
+  <button type="submit" id="submit" class="btn btn-default">Submit</button>
+</form>
+<div class="row"></div>
+<script>
+    var ws=new WebSocket("ws://127.0.0.1:9501/");
+    ws.onopen=function(evt){
+    	console.log("Connection open...");
+    	$(".row").append("<p>连接成功</p>");
+    }
+    ws.onmessage=function(evt){
+    	console.log("Receive message:"+evt.data);
+    	$(".row").append("<p>接收到消息:"+evt.data+"</p>");
+    	//ws.close();
+    }
+    ws.onclose=function(evt){
+    	console.log("Connection closed.");
+    	$(".row").append("<p>连接关闭</p>");
+    }
+    ws.onerror=function(err){
+    	alert("err:"+err);
+    	$(".row").append("<p>报错:"+err+"</p>");
+    }
+    $("#submit").click(function(event){
+    	event.preventDefault();
+    	var msg=$("#msg").val();
+    	if(typeof msg=='undefined'&&msg==''){
+    		alert("请输入消息");
+    		return false;
+    	}
+    	$(".row").append("<p>发送:"+msg+"</p>");
+    	var date=new Date();
+    	var post={};
+    	post.cmd="user/info/get";
+    	post.uid=date.getTime();
+    	post.msg=msg;
+    	ws.send(JSON.stringify(post));
+    });
+</script>
+</body>
+</html>
